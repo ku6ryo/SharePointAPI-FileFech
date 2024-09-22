@@ -21,19 +21,22 @@ app = Flask(__name__, template_folder="templates")
 app.secret_key = os.urandom(24)  # Secret key for Flask session
 
 # MSAL ConfidentialClientApplication to acquire token
-def _build_msal_app():
+def build_msal_app():
     return msal.ConfidentialClientApplication(
         AZURE_CLIENT_ID, authority=AUTHORITY, client_credential=AZURE_CLIENT_SECRET
     )
 
-def _get_token_from_cache():
-    accounts = _build_msal_app().get_accounts()
+def get_token_from_cache():
+    accounts = build_msal_app().get_accounts()
     if accounts:
-        result = _build_msal_app().acquire_token_silent(SCOPES, account=accounts[0])
+        result = build_msal_app().acquire_token_silent(SCOPES, account=accounts[0])
         return result
 
 @app.route('/')
 async def index():
+    """
+    The top page of this web application.
+    """
     token = session.get('token')
 
     if token is not None:
@@ -53,8 +56,11 @@ async def index():
 
 @app.route('/login')
 def login():
+    """
+    Login page. Create an OAuth 2.0 authorization URL and redirect to it.
+    """
     # Start the OAuth 2.0 Authorization flow
-    auth_url = _build_msal_app().get_authorization_request_url(
+    auth_url = build_msal_app().get_authorization_request_url(
         SCOPES,
         redirect_uri=url_for('authorized', _external=True)
     )
@@ -62,10 +68,13 @@ def login():
 
 @app.route(REDIRECT_PATH)
 def authorized():
+    """
+    Callback URL for OAuth 2.0 authorization response. This URL is registered with the application in the Azure portal.
+    """
     # Extract authorization code from the query string
     code = request.args.get('code')
     if code:
-        result = _build_msal_app().acquire_token_by_authorization_code(
+        result = build_msal_app().acquire_token_by_authorization_code(
             code,
             scopes=SCOPES,
             redirect_uri=url_for('authorized', _external=True)
@@ -76,24 +85,28 @@ def authorized():
 
 @app.route('/logout')
 def logout():
+    """Logout page. Clear session and redirect to logout URL."""
     session.clear()
     return redirect(f"{LOGOUT_URL}?post_logout_redirect_uri={url_for('index', _external=True)}")
 
 
 @app.route('/sites')
 async def sites():
+    """Get list of SharePoint sites"""
     token = session.get('token')
     if not token:
         return redirect(url_for('login'))
 
     client = GraphClientFactory().get_default_client()
     headers = {'Authorization': f'Bearer {token}'}
+    # Getting all sites.
     res = await client.get("https://graph.microsoft.com/v1.0/sites?search=", headers=headers)
     sites = res.json()
     return render_template('sites.html', sites=sites)
 
 @app.route('/sites/<site_id>/drives')
 async def drives(site_id):
+    """Get list of SharePoint drives (Document Libraries)"""
     token = session.get('token')
     if not token:
         return redirect(url_for('login'))
@@ -106,6 +119,7 @@ async def drives(site_id):
 
 @app.route('/sites/<site_id>/drives/<drive_id>')
 async def files(site_id, drive_id):
+    """Get list of files in a SharePoint drive (Document Library)"""
     token = session.get('token')
     if not token:
         return redirect(url_for('login'))
