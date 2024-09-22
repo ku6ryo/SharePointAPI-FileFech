@@ -7,5 +7,5 @@ Please make a copy of `.env.sample` and name it `.env`. Sets the environment var
 
 ```
 pip install -r requirements.txt
-python -m backend.server
+python -m server
 ```
