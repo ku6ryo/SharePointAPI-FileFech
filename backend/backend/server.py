@@ -13,8 +13,7 @@ AZURE_CLIENT_SECRET = os.getenv('AZURE_CLIENT_SECRET')
 # Configurations from Azure AD App Registration
 AUTHORITY = f"https://login.microsoftonline.com/{AZURE_TENANT_ID}"
 REDIRECT_PATH = "/azure_callback"
-SCOPES = ["User.Read offline_access"]  # Adjust scope based on what APIs you need to access
-
+SCOPES = ["User.Read Sites.Read.All offline_access"]
 LOGOUT_URL = f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2/v2.0/logout"
 
 # Flask app
