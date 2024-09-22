@@ -10,7 +10,7 @@ const handler = NextAuth({
       authorization: {
         params: {
           // need offline_access to get refresh token
-          scope: 'openid profile Sites.Read.All offline_access', // Add required scopes here
+          scope: 'openid profile Sites.Read.All offline_access',
         }
       }
     })
