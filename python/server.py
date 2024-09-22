@@ -3,6 +3,7 @@ import msal
 from flask import Flask, session, redirect, url_for, request, render_template
 from msgraph_core import GraphClientFactory
 import os
+import time
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -38,6 +39,7 @@ async def index():
     The top page of this web application.
     """
     token = session.get('token')
+    expires_at = session.get('expires_at')
 
     if token is not None:
         # Initialize Graph client
@@ -45,6 +47,7 @@ async def index():
         headers = {'Authorization': f'Bearer {token}'}
         user_response = await client.get("https://graph.microsoft.com/v1.0/me", headers=headers)
         profile = user_response.json()
+        readable_expires_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(expires_at))
 
     return render_template(
         'index.html',
@@ -52,6 +55,7 @@ async def index():
         profile=profile if token is not None else None,
         token=token,
         refresh_token=session.get('refresh_token'),
+        expires_at=readable_expires_at if token is not None else None
     )
 
 @app.route('/login')
@@ -81,6 +85,7 @@ def authorized():
         )
         session['token'] = result.get('access_token')
         session['refresh_token'] = result.get('refresh_token')
+        session['expires_at'] = time.time() + result.get('expires_in')
     return redirect(url_for('index'))
 
 @app.route('/logout')
@@ -104,15 +109,19 @@ def refresh_token():
         refresh_token=refresh_token,
         scopes=SCOPES
     )
-    session['token'] = result.get('access_token')
-    session['refresh_token'] = result.get('refresh_token')
-
     new_token = result.get('access_token')
+    expires_at = time.time() + result.get('expires_in')
+    session['token'] = new_token
+    session['expires_at'] = expires_at
+
+    expires_at_readable = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(expires_at))
+
     return render_template(
         'refresh_token.html',
         prev_token=token,
         new_token=new_token,
         refresh_token=refresh_token,
+        expires_at=expires_at_readable,
     )
 
 
