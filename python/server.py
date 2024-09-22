@@ -89,6 +89,32 @@ def logout():
     session.clear()
     return redirect(f"{LOGOUT_URL}?post_logout_redirect_uri={url_for('index', _external=True)}")
 
+@app.route('/refresh_token')
+def refresh_token():
+    """
+    By using the refresh token, you can acquire a new access token without user interaction.
+    """
+    token = session.get('token')
+    refresh_token = session.get('refresh_token')
+
+    if not token:
+        return redirect(url_for('login'))
+
+    result = build_msal_app().acquire_token_by_refresh_token(
+        refresh_token=refresh_token,
+        scopes=SCOPES
+    )
+    session['token'] = result.get('access_token')
+    session['refresh_token'] = result.get('refresh_token')
+
+    new_token = result.get('access_token')
+    return render_template(
+        'refresh_token.html',
+        prev_token=token,
+        new_token=new_token,
+        refresh_token=refresh_token,
+    )
+
 
 @app.route('/sites')
 async def sites():
