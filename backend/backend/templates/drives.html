@@ -1,0 +1,34 @@
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+</style>
+
+<div>
+    <a href="/sites">← back to sites</a>
+</div>
+
+<h1>Document Libraries</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>ID</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for drive in drives.value %}
+        <tr>
+            <td><a href="{{drive.webUrl}}" target="_blank">{{drive.name}}</a></td>
+            <td><a href="./drives/{{drive.id}}">files</a></td>
+            <td>{{drive.id}}</td>
+        </tr>
+{% endfor %}
+    </tbody>
+</table>
+
+<h1>Raw JSON</h1>
+<pre>
+    {{drives}}
+</pre>

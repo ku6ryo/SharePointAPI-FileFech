@@ -1,0 +1,27 @@
+{% if logged_in %}
+<div>
+    <a href="/sites">sites</a>
+</div>
+<div>
+    <a href="/logout">logout</a>
+</div>
+
+<h1>Hello, {{profile['displayName']}}!</h1>
+
+<h1>Raw Profile JSON</h1>
+<pre>
+    {{profile}}
+</pre>
+
+<h1>Raw Token</h1>
+<pre>
+    {{token}}
+</pre>
+
+<h1>Raw Refresh Token</h1>
+<pre>
+    {{refresh_token}}
+</pre>
+{% else %}
+<a href="/login">Login</a>
+{% endif %}

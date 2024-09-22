@@ -1,0 +1,33 @@
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+</style>
+
+<div>
+    <a href="../drives">← back to Document Libraries</a>
+</div>
+
+<h1>files</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>ID</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for file in files.value %}
+        <tr>
+            <td><a href="{{file['@microsoft.graph.downloadUrl']}}">{{file.name}}<a></a></td>
+            <td>{{file.id}}</td>
+        </tr>
+{% endfor %}
+    </tbody>
+</table>
+
+<h1>Raw JSON</h1>
+<pre>
+    {{files}}
+</pre>

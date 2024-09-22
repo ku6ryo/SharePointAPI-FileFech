@@ -1,0 +1,35 @@
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+</style>
+
+<div>
+    <a href="/">← back to "/"</a>
+</div>
+
+<h1>Sites</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>ID</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for site in sites.value %}
+{% set ids = site.id.split(",") %}
+        <tr>
+            <td><a href="{{site.webUrl}}" target="_blank">{{site.displayName}}</a></td>
+            <td><a href="./sites/{{ids[1]}}/drives">Document Libraries</a></td>
+            <td>{{ids[1]}}</td>
+        </tr>
+{% endfor %}
+    </tbody>
+</table>
+
+<h1>Raw JSON</h1>
+<pre>
+    {{sites}}
+</pre>
